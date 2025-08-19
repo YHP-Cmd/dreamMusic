@@ -1,0 +1,13 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr:127.0.0.1:8848
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://userModel
+          predicates:
+            - Path=/users/**
+          filters:
+            StripPrefix=1
