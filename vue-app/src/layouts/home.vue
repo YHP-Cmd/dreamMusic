@@ -34,11 +34,19 @@
          <div class="footer-inner">
            <!-- 左侧：歌曲信息 -->
            <div class="song-info">
-             <img :src="imgUrl(store.currentSong?.image)" style="width: 70px;height: 70px;border-radius: 50%; object-fit: cover;"/>
+             <img
+                 :src="imgUrl(store.currentSong?.image)"
+                 style="width: 70px;height: 70px;border-radius: 50%; object-fit: cover; animation: rotate 5s linear infinite;"/>
              <div v-if="store.currentSong" style="margin-left: 15px;">
                <div style="font-size: 18px; color: #fff; font-weight: bold; margin-bottom: 5px;">{{ store.currentSong.name }}</div>
                <div style="font-size: 14px; color: #fff; opacity: 0.8;">{{ store.currentSong.introduction || '暂无介绍' }}</div>
              </div>
+           </div>
+           <div>
+<!--             加入收藏-->
+             <el-button><el-icon><Star/></el-icon></el-button>
+<!--             评论-->
+             <el-button><el-icon><ChatDotRound /></el-icon></el-button>
            </div>
            
            <!-- 中间：播放控制和进度条 -->
@@ -69,6 +77,8 @@
                />
              </div>
            </div>
+
+
            
            <!-- 右侧：音量控制和播放队列 -->
            <div class="right-section">
@@ -86,7 +96,7 @@
                <el-button @click="showQueue = !showQueue" type="primary" circle>
                  <el-icon><List /></el-icon>
                </el-button>
-               <span style="margin-left: 10px; color: #fff; font-size: 14px;">播放队列</span>
+               <span style="margin-left: 10px; color: #fff; font-size: 14px;"></span>
              </div>
            </div>
          </div>
@@ -160,14 +170,15 @@ import { Search, ArrowLeft, ArrowRight, VideoPlay, VideoPause, Microphone, List,
 import {onMounted, ref, watch, computed, nextTick} from "vue";
 import axios from "axios";
 import { store } from '../store.js';
+import config from '../config'
 
 const imgUrl=(filename)=>{
-  return `http://localhost:8088/`+filename
+  return `${config.api}/music/`+filename
 }
 
 // 创建 audio 元素的 ref 引用
 const audio = ref<HTMLAudioElement | null>(null);
-const audioUrl = ref('http://localhost:8088/audio/?filename=失控.wav')
+const audioUrl = ref(``)
 const isSongEnded = ref(false);
 
 // 播放进度和音量控制
@@ -180,16 +191,8 @@ const showQueue = ref(false);
 // 使用store中的播放列表
 const playlist = computed(() => store.playlist);
 const currentIndex = computed(() => store.currentIndex);
-
-const getData=()=>{
-  axios.get(`http://localhost:8088/audio/?filename=心墙DJ(赛马娘版).wav`).then(response=>{
-    if (response.data){
-      console.log(response.data)
-      audio.value=response.data
-    }
-  })
-}
 onMounted(()=>{
+  store.currentSong=null
   // getData()
   // 初始化音量
   if (audio.value) {
@@ -219,7 +222,7 @@ watch(() => store.currentSong, (newSong) => {
   if (newSong) {
     console.log('收到新的歌曲:', newSong);
     // 更新音频源
-    audioUrl.value = `http://localhost:8088/audio/?filename=${newSong.name}.wav`;
+    audioUrl.value = `${config.api}/music/audio/?filename=${newSong.path}`;
     
     // 自动播放新歌曲
     setTimeout(() => {
@@ -308,7 +311,7 @@ const previousSong = () => {
     const song = playlist.value[newIndex];
     store.setCurrentIndex(newIndex);
     store.setCurrentSong(song);
-    audioUrl.value = `http://localhost:8088/audio/?filename=${song.name}.wav`;
+    audioUrl.value = `${config.api}/music/audio/?filename=${song.path}`;
     // 自动播放
     setTimeout(() => {
       if (audio.value) {
@@ -334,7 +337,7 @@ const nextSong = () => {
     const song = playlist.value[newIndex];
     store.setCurrentIndex(newIndex);
     store.setCurrentSong(song);
-    audioUrl.value = `http://localhost:8088/audio/?filename=${song.name}.wav`;
+    audioUrl.value = `${config.api}/music/audio/?filename=${song.path}`;
     // 自动播放
     setTimeout(() => {
       if (audio.value) {
@@ -359,7 +362,7 @@ const playSong = (index: number) => {
     const song = playlist.value[index];
     store.setCurrentIndex(index);
     store.setCurrentSong(song);
-    audioUrl.value = `http://localhost:8088/audio/?filename=${song.name}.wav`;
+    audioUrl.value = `${config.api}/music/audio/?filename=${song.path}`;
     // 自动播放
     setTimeout(() => {
       if (audio.value) {
@@ -398,6 +401,14 @@ const removeFromQueue = (index: number) => {
 </script>
 
 <style scoped>
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 .common-layout {
   display: flex;
   flex-direction: column;

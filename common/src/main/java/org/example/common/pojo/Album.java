@@ -1,4 +1,4 @@
-package org.example.pojo;
+package org.example.common.pojo;
 
 
 import lombok.AllArgsConstructor;
@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Model {
-    private int modelId;
-    private String modelName;
-    private String routeAddress;
+public class Album {
+    private int albumId;
+    private String albumName;
+    private int singerId;
 }

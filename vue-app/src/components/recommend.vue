@@ -4,15 +4,16 @@ import axios from "axios";
 import { store } from '../store.js';
 import { ElMessage } from 'element-plus';
 import { VideoPlay } from '@element-plus/icons-vue';
+import config from '../config'
 const imgUrl=(filename)=>{
-  return `http://localhost:8088/`+filename
+  return `${config.api}/music/`+filename
 }
 // Ref to store the fetched music data
 const musics = ref<any[]>([]);
 
 // Function to fetch data from the server
 const getData = () => {
-  axios.get(`http://localhost:8088/getAll`).then((response) => {
+  axios.get(`${config.api}/music/recommend`).then((response) => {
     if (response.data) {
       musics.value = response.data; // Storing fetched data into musics
     }
@@ -57,7 +58,7 @@ const selectSong = (song) => {
 <template>
   <div class="recommend-container">
     <h2 class="page-title">推荐歌曲</h2>
-    <el-table :data="musics" class="music-table" stripe>
+    <el-table :data="musics" :show-header="false" class="music-table" stripe>
       <!-- Song image column -->
       <el-table-column label="封面" width="80">
         <template #default="{ row }">
@@ -70,16 +71,11 @@ const selectSong = (song) => {
         <template #default="{ row }">
           <div class="song-info">
             <div class="song-name">{{ row.name }}</div>
-            <div class="song-intro">{{ row.introduction || '暂无介绍' }}</div>
+            <div class="song-intro">{{ row.singerName || '未知歌手' }}</div>
           </div>
         </template>
       </el-table-column>
-
-      <!-- Song type column -->
-      <el-table-column label="类型" prop="typeId" width="100"></el-table-column>
-
-      <!-- Album ID column -->
-      <el-table-column label="专辑ID" prop="albumId" width="100"></el-table-column>
+      <el-table-column label="专辑" prop="albumName" width="100"></el-table-column>
 
       <!-- 操作列 -->
       <el-table-column label="操作" width="120" fixed="right">

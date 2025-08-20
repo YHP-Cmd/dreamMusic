@@ -1,7 +1,7 @@
 package org.example.musicmodel.controller;
 
 import org.example.musicmodel.mapper.MusicMapper;
-import org.example.pojo.Song;
+import org.example.common.pojo.Song;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @CrossOrigin
@@ -45,7 +45,6 @@ public class MusicController {
         if (!filePath.startsWith(AUDIO_DIR)) {
             return ResponseEntity.badRequest().body(null); // 防止路径遍历攻击
         }
-
         try {
             Resource resource = new UrlResource(filePath.toUri());
 
@@ -53,13 +52,11 @@ public class MusicController {
             if (!resource.exists()) {
                 return ResponseEntity.notFound().build();
             }
-
             // 设置 MIME 类型
             String contentType = Files.probeContentType(filePath);
             if (contentType == null) {
                 contentType = "audio/mpeg";  // 默认 MIME 类型
             }
-
             return ResponseEntity.ok()
                     .contentType(MediaType.valueOf(contentType))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
@@ -70,7 +67,13 @@ public class MusicController {
     }
     @GetMapping("/recommend")
     public List<Song> getRecommend() {
-        return musicMapper.selectList(null);
+        List<Song> songs = musicMapper.getAll();
+
+        //随机打乱集合
+        Collections.shuffle(songs, new Random());
+
+        // 返回前10个不重复的歌曲
+        return songs.subList(0, Math.min(10, songs.size()));
     }
     @GetMapping("/{filename}")
     public ResponseEntity<?> getImage(@PathVariable("filename") String filename) {
@@ -88,5 +91,14 @@ public class MusicController {
             return ResponseEntity.status(500).body("获取图片失败: " + e.getMessage());
         }
     }
+    @GetMapping("/selectAll")
+    public List<Song> getAllSong() {
+        return musicMapper.getAll();
+    }
+    @GetMapping("/selectBySingerId")
+    public List<Song> selectBySingerId(@RequestParam Integer singerId){
+        return musicMapper.getBySingerId(singerId);
+    }
+
 }
 

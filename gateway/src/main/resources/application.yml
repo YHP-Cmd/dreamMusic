@@ -1,8 +1,5 @@
 spring:
   cloud:
-    nacos:
-      discovery:
-        server-addr:127.0.0.1:8848
     gateway:
       routes:
         - id: user-service
@@ -11,3 +8,24 @@ spring:
             - Path=/users/**
           filters:
             StripPrefix=1
+
+        - id: singer-service
+          uri: lb://singerModel
+          predicates:
+            - Path=/singer/**
+          filters:
+            - StripPrefix=1
+
+        - id: music-service
+          uri: lb://musicModel
+          predicates:
+            - Path=/music/**
+          filters:
+            - StripPrefix=1
+
+        - id: album-service
+          uri: lb://albumModel
+          predicates:
+            - Path=/album/**
+          filters:
+            - StripPrefix=1

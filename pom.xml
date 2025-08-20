@@ -11,6 +11,15 @@
     <groupId>org.example</groupId>
     <artifactId>dreamerMusic</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <modules>
+        <module>commentModel</module>
+        <module>albumModel</module>
+        <module>gateway</module>
+        <module>temp</module>
+        <module>musicModel</module>
+        <module>singerModel</module>
+        <module>userModel</module>
+    </modules>
     <packaging>pom</packaging>
     <name>dreamerMusic</name>
     <description>dreamerMusic</description>
@@ -49,28 +58,6 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.6</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
