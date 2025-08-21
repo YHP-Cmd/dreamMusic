@@ -22,7 +22,7 @@ onMounted(()=>{
 })
 const handleCurrentChange=(val)=>{
   router.push({
-    path:'/album',
+    path:'/singerInfo',
     query: {singerId:val.singerId}
   })
 }

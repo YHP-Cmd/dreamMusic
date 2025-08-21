@@ -14,6 +14,11 @@ public interface SingerMapper extends BaseMapper<Singer> {
             "from singer s left join singer_type t on s.type_id=t.type_id " +
             "left join region r on s.region_id=r.region_id")
     List<Singer> getAll();
+    @Select("select s.singer_id,s.name,s.region_id,r.name as region,s.type_id,t.name as type,s.gender,s.image " +
+            "from singer s left join singer_type t on s.type_id=t.type_id " +
+            "left join region r on s.region_id=r.region_id " +
+            "where s.singer_id=#{id}")
+    Singer getById(Integer id);
 
 
 }

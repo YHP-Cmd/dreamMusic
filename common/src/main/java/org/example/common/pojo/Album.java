@@ -12,4 +12,5 @@ public class Album {
     private int albumId;
     private String albumName;
     private int singerId;
+    private String image;
 }

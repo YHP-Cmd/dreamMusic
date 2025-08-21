@@ -1,5 +1,6 @@
 package org.example.musicmodel.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.example.musicmodel.mapper.MusicMapper;
 import org.example.common.pojo.Song;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,6 +100,22 @@ public class MusicController {
     public List<Song> selectBySingerId(@RequestParam Integer singerId){
         return musicMapper.getBySingerId(singerId);
     }
+    @GetMapping("/selectByAlbumId")
+    public List<Song> selectByAlbumId(@RequestParam Integer albumId){
+        return musicMapper.getByAlbumId(albumId);
+    }
 
+    @GetMapping("/test")
+    public void test(){
+        List<Song> songs = musicMapper.selectList(null);
+        for (Song song : songs) {
+            if(song.getImage()==null|| song.getImage().isEmpty()){
+                song.setImage(song.getName()+".png");
+                QueryWrapper<Song> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("song_id",song.getSongId());
+                musicMapper.update(song,queryWrapper);
+            }
+        }
+    }
 }
 

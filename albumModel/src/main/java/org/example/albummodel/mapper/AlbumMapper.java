@@ -10,6 +10,6 @@ import java.util.List;
 
 @Mapper
 public interface AlbumMapper extends BaseMapper<Album> {
-    @Select("select * from album where singer_id=#{id}")
-    List<Album> getById(@Param("id") int id);
+//    @Select("select * from album where singer_id=#{id}")
+//    List<Album> getById(@Param("id") int id);
 }

@@ -2,6 +2,7 @@ package org.example.albummodel.controller;
 
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.example.albummodel.mapper.AlbumMapper;
 import org.example.common.pojo.Album;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ public class AlbumController {
     private AlbumMapper albumMapper;
     @GetMapping("/getById")
     public List<Album> getAlbumById(@RequestParam("id") int id){
-        return albumMapper.getById(id);
+        QueryWrapper<Album> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("singer_id",id);
+        return albumMapper.selectList(queryWrapper);
     }
 }

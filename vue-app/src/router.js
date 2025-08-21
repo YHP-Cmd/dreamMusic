@@ -11,6 +11,14 @@ const routes=[
         component:()=>import('./login/regis.vue')
     },
     {
+        path: '/temp',
+        component:()=>import('./temp.vue')
+    },
+    {
+        path: '/test',
+        component:()=>import('./test.vue')
+    },
+    {
         path: '/home',
         component:()=>import('./layouts/home.vue'),
         children:[
@@ -39,8 +47,22 @@ const routes=[
                 component:()=>import('./components/singer.vue')
             },
             {
-                path: '/album',
-                component:()=>import('./components/album.vue')
+                path:'/singerInfo',
+                component:()=>import('./info/singerInfo.vue'),
+                children:[
+                    {
+                        path:'/songInfo',
+                        component:()=>import('./info/songInfo.vue')
+                    },
+                    {
+                        path: '/album',
+                        component:()=>import('./info/album.vue')
+                    },
+                    {
+                        path: '/albumInfo',
+                        component:()=>import('./info/albumInfo.vue')
+                    }
+                ]
             }
         ]
     }

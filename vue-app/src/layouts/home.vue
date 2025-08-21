@@ -39,7 +39,7 @@
                  style="width: 70px;height: 70px;border-radius: 50%; object-fit: cover; animation: rotate 5s linear infinite;"/>
              <div v-if="store.currentSong" style="margin-left: 15px;">
                <div style="font-size: 18px; color: #fff; font-weight: bold; margin-bottom: 5px;">{{ store.currentSong.name }}</div>
-               <div style="font-size: 14px; color: #fff; opacity: 0.8;">{{ store.currentSong.introduction || '暂无介绍' }}</div>
+               <div style="font-size: 14px; color: #fff; opacity: 0.8;">{{ store.currentSong.singerName || '暂无介绍' }}</div>
              </div>
            </div>
            <div>

@@ -25,31 +25,44 @@ onMounted(() => {
   getData();
 });
 
+// 添加到播放列表的函数
+const addSong = (song) => {
+  // 将歌曲添加到播放队列的最后面
+  const currentPlaylist = [...store.playlist];
+  // 检查歌曲是否已经在队列中
+  const existingIndex = currentPlaylist.findIndex(item => item.songId === song.songId);
+  if (existingIndex === -1) {
+    // 如果歌曲不在队列中，将其添加到队列最后面
+    currentPlaylist.push(song);
+  }
+  // 更新播放列表，不改变当前歌曲和播放状态
+  store.setPlaylist(currentPlaylist);
+  // 可以添加一些用户反馈，比如消息提示
+  ElMessage.success(`已添加歌曲到播放队列: ${song.name}`);
+};
 // 选择歌曲的函数
 const selectSong = (song) => {
   console.log('选择的歌曲:', song);
-  
+
   // 将歌曲添加到播放队列的最前面
   const currentPlaylist = [...store.playlist];
-  
+
   // 检查歌曲是否已经在队列中
   const existingIndex = currentPlaylist.findIndex(item => item.songId === song.songId);
-  
+
   if (existingIndex !== -1) {
     // 如果歌曲已存在，将其移到最前面
     currentPlaylist.splice(existingIndex, 1);
   }
-  
+
   // 将歌曲添加到队列最前面
   currentPlaylist.unshift(song);
-  
+
   // 更新播放列表
   store.setPlaylist(currentPlaylist);
-  
   // 设置当前歌曲为第一首（新添加的歌曲）
   store.setCurrentIndex(0);
   store.setCurrentSong(song);
-  
   // 可以添加一些用户反馈，比如消息提示
   ElMessage.success(`已添加歌曲到播放队列: ${song.name}`);
 };
@@ -58,7 +71,11 @@ const selectSong = (song) => {
 <template>
   <div class="recommend-container">
     <h2 class="page-title">推荐歌曲</h2>
-    <el-table :data="musics" :show-header="false" class="music-table" stripe>
+    <el-table :data="musics"
+              :show-header="false"
+              highlight-current-row
+              @current-change="selectSong"
+              class="music-table" stripe>
       <!-- Song image column -->
       <el-table-column label="封面" width="80">
         <template #default="{ row }">
@@ -80,9 +97,9 @@ const selectSong = (song) => {
       <!-- 操作列 -->
       <el-table-column label="操作" width="120" fixed="right">
         <template #default="{ row }">
-          <el-button @click="selectSong(row)" type="primary" size="small">
+          <el-button @click="addSong(row)" type="primary" size="small">
             <el-icon><VideoPlay /></el-icon>
-            播放
+            添加
           </el-button>
         </template>
       </el-table-column>
