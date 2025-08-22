@@ -40,7 +40,17 @@ const routes=[
             },
             {
                 path:'/ranking',
-                component:()=>import('./components/ranking.vue')
+                component:()=>import('./components/ranking.vue'),
+                children: [
+                    {
+                        path: '/sumRank',
+                        component:()=>import('./info/sumRank.vue')
+                    },
+                    {
+                        path: '/statRank',
+                        component:()=>import('./info/statRank.vue')
+                    },
+                ]
             },
             {
                 path:'/select',

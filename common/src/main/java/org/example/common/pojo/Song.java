@@ -24,6 +24,10 @@ public class Song {
     private int albumId;
     @TableField(exist = false)
     private String albumName;
+    @TableField(exist = false)
+    private int temp;
+    @TableField(exist = false)
+    private String statNum;
 
     @Override
     public String toString() {

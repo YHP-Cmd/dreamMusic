@@ -41,12 +41,14 @@ public class MusicController {
     }
     @GetMapping("/audio")
     public ResponseEntity<Resource> getAudio(@RequestParam String filename,
-                                             @RequestHeader("Authorization") String authorizationHeader,
-                                             @RequestParam int song_id) {
+                                             @RequestParam int song_id,
+                                             @RequestParam int user_id
+    ) {
         // 安全检查：文件名不能包含非法字符
         if (filename.contains("..")) {
             return ResponseEntity.badRequest().body(null);
         }
+        System.out.println(filename+"----"+song_id+"----"+user_id);
         // 根据传入的文件名构造路径
         Path filePath = Paths.get(AUDIO_DIR, filename).normalize();
         // 确保文件路径位于预期的目录中
@@ -66,9 +68,8 @@ public class MusicController {
                 contentType = "audio/mpeg";  // 默认 MIME 类型
             }
 
-            User user= JWTUtil.getUser(authorizationHeader);
             Listen listen = new Listen();
-            listen.setSongId(user.getId());
+            listen.setUserId(user_id);
             listen.setSongId(song_id);
             listen.setCreateTime(new Date());
             listenServiceImpl.save(listen);
@@ -121,6 +122,10 @@ public class MusicController {
     @GetMapping("/selectById")
     public Song selectById(@RequestParam Integer id){
         return musicMapper.getById(id);
+    }
+    @GetMapping("/selectByNum")
+    public List<Song> selectByNum(){
+        return musicMapper.getByNum();
     }
 
     @GetMapping("/test")

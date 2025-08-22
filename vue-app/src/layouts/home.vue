@@ -86,8 +86,6 @@
              </div>
            </div>
 
-
-
            <!-- 右侧：音量控制和播放队列 -->
            <div class="right-section">
              <div class="volume-section">
@@ -270,8 +268,7 @@ onMounted(()=>{
 watch(() => store.currentSong, (newSong) => {
   if (newSong) {
     // 更新音频源
-    audioUrl.value = `${config.api}/music/audio/?filename=${newSong.path}`;
-
+    audioUrl.value = `${config.api}/music/audio/?user_id=${user.value.id}&filename=${newSong.path}&song_id=${newSong.songId}`;
     // 自动播放新歌曲
     setTimeout(() => {
       if (audio.value) {
@@ -359,7 +356,7 @@ const previousSong = () => {
     const song = playlist.value[newIndex];
     store.setCurrentIndex(newIndex);
     store.setCurrentSong(song);
-    audioUrl.value = `${config.api}/music/audio/?filename=${song.path}`;
+    audioUrl.value = `${config.api}/music/audio/?user_id=${user.value.id}&filename=${song.path}&song_id=${song.songId}`;
     // 自动播放
     setTimeout(() => {
       if (audio.value) {
@@ -386,7 +383,7 @@ const nextSong = () => {
     store.setCurrentIndex(newIndex);
     store.setCurrentSong(song);
 
-    audioUrl.value = `${config.api}/music/audio/?filename=${song.path}`;
+    audioUrl.value = `${config.api}/music/audio/?user_id=${user.value.id}&filename=${song.path}&song_id=${song.songId}`;
     // 自动播放
     setTimeout(() => {
       if (audio.value) {
@@ -411,7 +408,7 @@ const playSong = (index: number) => {
     const song = playlist.value[index];
     store.setCurrentIndex(index);
     store.setCurrentSong(song);
-    audioUrl.value = `${config.api}/music/audio/?filename=${song.path}`;
+    audioUrl.value = `${config.api}/music/audio/?user_id=${user.value.id}&filename=${song.path}&song_id=${song.songId}`;
     // 自动播放
     setTimeout(() => {
       if (audio.value) {

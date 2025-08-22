@@ -5,6 +5,7 @@ export const useUserStore = defineStore('user', () => {
   // 状态
   const token = ref(localStorage.getItem('token') || '')
   const username = ref(localStorage.getItem('username') || '')
+  const userId=ref(localStorage.getItem('userId')||'')
   
   // 设置token和用户名
   const setToken = (newToken, newUsername) => {
@@ -12,6 +13,9 @@ export const useUserStore = defineStore('user', () => {
     username.value = newUsername
     localStorage.setItem('token', newToken)
     localStorage.setItem('username', newUsername)
+  }
+  const setUserId=(NewUserId)=>{
+    localStorage.setItem('userId',NewUserId)
   }
   
   // 清除token和用户名
@@ -32,6 +36,7 @@ export const useUserStore = defineStore('user', () => {
     username,
     setToken,
     clearToken,
-    isLoggedIn
+    isLoggedIn,
+    setUserId
   }
 }) 
