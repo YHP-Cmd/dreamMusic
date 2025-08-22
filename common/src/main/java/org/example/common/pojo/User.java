@@ -19,6 +19,7 @@ public class User {
     private String gender;
     private String nickname;
     private String status;
+    private String image;
     @TableField(exist = false) // 核心：标记该字段不存在于数据库表中
     private String verificationCode;
 

@@ -23,8 +23,11 @@
             <el-icon><Search /></el-icon>
           </el-menu-item>
           <div style="display: flex; align-items: center; margin-left: auto;">
-            <el-avatar src="user-avatar-url.jpg" size="large"></el-avatar>
-            <span style="margin-left: 10px; font-size: 16px;">用户昵称</span>
+            <el-avatar 
+              :src="user.image ? imgUrl(user.image) : 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" 
+              size="large"
+            ></el-avatar>
+            <span style="margin-left: 10px; font-size: 16px; color: #333;">{{ user.username || '用户昵称' }}</span>
           </div>
         </el-menu>
       </el-header>
@@ -178,20 +181,30 @@ import axios from "axios";
 import config from '../config.js'
 
 const userStore = useUserStore(); // 修正拼写
-const user = ref();
+const user = ref({});
 
 // 获取数据
 const getData = () => {
   const token = userStore.token; // 确保获取 token
-  console.log("Token:", token);
+  const localStorageToken = localStorage.getItem('token');
+  console.log("Token from store:", token);
+  console.log("Token from localStorage:", localStorageToken);
+  console.log("Token length:", token ? token.length : 0);
+  
+  if (!token) {
+    console.error("Token is empty or null!");
+    return;
+  }
+  console.log("Sending request with Authorization header:", `Bearer ${token}`);
   axios.get(`${config.api}/users/getUser`, {
     headers: {
-      'Authorization': token, // 确保 Authorization 前面是 'Bearer '
+      'Authorization': `Bearer ${token}`, // 添加Bearer前缀
     }
   }).then(response => {
     if (response.data) { // 确保数据是数组
       console.log("Response Data:", response.data);
       user.value = response.data; // 将数据绑定到 users
+      console.log(user.value)
     } else {
       console.error("Unexpected data format:", response.data);
     }
@@ -228,7 +241,7 @@ const playlist = computed(() => store.playlist);
 const currentIndex = computed(() => store.currentIndex);
 onMounted(()=>{
   store.currentSong=null
-  // getData()
+  getData() // 取消注释，确保调用getData
   // 初始化音量
   if (audio.value) {
     audio.value.volume = volume.value / 100;

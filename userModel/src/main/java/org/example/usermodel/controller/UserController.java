@@ -226,17 +226,22 @@ public class UserController {
 
     @GetMapping("/getUser")
     public User getUser(@RequestHeader("Authorization") String authorizationHeader){
-        System.out.println(authorizationHeader);
-        boolean auth = JWTUtil.verify(authorizationHeader);
+        System.out.println("Authorization Header: " + authorizationHeader);
+        // 处理Bearer前缀
+        String token = authorizationHeader;
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            token = authorizationHeader.substring(7); // 移除"Bearer "前缀
+        }
+        System.out.println("Extracted Token: " + token);
+        boolean auth = JWTUtil.verify(token);
         String username="";
         if(auth) {
-             username = JWTUtil.getPayload(authorizationHeader);
+             username = JWTUtil.getPayload(token);
         }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username",username);
         User user=userService.getOne(queryWrapper);
         user.setPassword(null);
-
         return user;
     }
 }
