@@ -22,14 +22,15 @@
           <el-menu-item index="select">
             <el-icon><Search /></el-icon>
           </el-menu-item>
-          <div style="display: flex; align-items: center; margin-left: auto;">
-            <el-avatar 
-              :src="user.image ? imgUrl(user.image) : 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" 
-              size="large"
-            ></el-avatar>
-            <span style="margin-left: 10px; font-size: 16px; color: #333;">{{ user.username || '用户昵称' }}</span>
-          </div>
         </el-menu>
+        <div class="user-info">
+          <el-avatar
+              :src="user.image ? imgUrl(user.image) : 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
+              size="large"
+              class="user-avatar"
+          ></el-avatar>
+          <span class="username">{{ user.username || '用户昵称' }}</span>
+        </div>
       </el-header>
 
       <!-- Main Section -->
@@ -55,7 +56,7 @@
 <!--             评论-->
              <el-button @click="comment(store.currentSong.songId)"><el-icon><ChatDotRound /></el-icon></el-button>
            </div>
-           
+
            <!-- 中间：播放控制和进度条 -->
            <div class="center-section">
              <div class="control-buttons">
@@ -75,9 +76,9 @@
                  <span>{{ formatTime(currentTime) }}</span>
                  <span>{{ formatTime(duration) }}</span>
                </div>
-               <el-slider 
-                 v-model="progress" 
-                 :max="100" 
+               <el-slider
+                 v-model="progress"
+                 :max="100"
                  @change="seekTo"
                  class="progress-slider"
                  :show-tooltip="false"
@@ -86,14 +87,14 @@
            </div>
 
 
-           
+
            <!-- 右侧：音量控制和播放队列 -->
            <div class="right-section">
              <div class="volume-section">
                <el-icon><Microphone /></el-icon>
-               <el-slider 
-                 v-model="volume" 
-                 :max="100" 
+               <el-slider
+                 v-model="volume"
+                 :max="100"
                  @change="setVolume"
                  class="volume-slider"
                  :show-tooltip="false"
@@ -109,11 +110,11 @@
          </div>
        </el-footer>
     </el-container>
-    
+
     <!-- 播放队列弹窗 -->
-    <el-dialog 
-      v-model="showQueue" 
-      title="播放队列" 
+    <el-dialog
+      v-model="showQueue"
+      title="播放队列"
       width="500px"
       :before-close="handleCloseQueue"
     >
@@ -122,8 +123,8 @@
           <el-empty description="播放队列为空" />
         </div>
         <div v-else class="queue-list">
-          <div 
-            v-for="(song, index) in playlist" 
+          <div
+            v-for="(song, index) in playlist"
             :key="song.songId"
             class="queue-item"
             :class="{ 'current-song': index === currentIndex }"
@@ -135,18 +136,18 @@
               <div class="song-intro">{{ song.singerName || '未知歌手' }}</div>
             </div>
             <div class="song-actions">
-              <el-button 
-                v-if="index === currentIndex" 
-                type="primary" 
-                size="small" 
+              <el-button
+                v-if="index === currentIndex"
+                type="primary"
+                size="small"
                 circle
               >
                 <el-icon><VideoPlay /></el-icon>
               </el-button>
-              <el-button 
-                @click.stop="removeFromQueue(index)" 
-                type="danger" 
-                size="small" 
+              <el-button
+                @click.stop="removeFromQueue(index)"
+                type="danger"
+                size="small"
                 circle
               >
                 <el-icon><Delete /></el-icon>
@@ -156,12 +157,12 @@
         </div>
       </div>
     </el-dialog>
-    
+
     <!-- 隐藏的音频元素 -->
-    <audio 
-      ref="audio" 
-      :src="audioUrl" 
-      @timeupdate="updateProgress" 
+    <audio
+      ref="audio"
+      :src="audioUrl"
+      @timeupdate="updateProgress"
       @ended="onSongEnd"
       @loadedmetadata="updateProgress"
       style="display: none;"
@@ -190,7 +191,7 @@ const getData = () => {
   console.log("Token from store:", token);
   console.log("Token from localStorage:", localStorageToken);
   console.log("Token length:", token ? token.length : 0);
-  
+
   if (!token) {
     console.error("Token is empty or null!");
     return;
@@ -201,7 +202,7 @@ const getData = () => {
       'Authorization': `Bearer ${token}`, // 添加Bearer前缀
     }
   }).then(response => {
-    if (response.data) { // 确保数据是数组
+    if (response.data) {
       console.log("Response Data:", response.data);
       user.value = response.data; // 将数据绑定到 users
       console.log(user.value)
@@ -246,7 +247,7 @@ onMounted(()=>{
   if (audio.value) {
     audio.value.volume = volume.value / 100;
   }
-  
+
   // 添加音频事件监听器
   nextTick(() => {
     if (audio.value) {
@@ -268,10 +269,9 @@ onMounted(()=>{
 // 监听歌曲变化
 watch(() => store.currentSong, (newSong) => {
   if (newSong) {
-    console.log('收到新的歌曲:', newSong);
     // 更新音频源
     audioUrl.value = `${config.api}/music/audio/?filename=${newSong.path}`;
-    
+
     // 自动播放新歌曲
     setTimeout(() => {
       if (audio.value) {
@@ -297,7 +297,7 @@ const updateProgress = () => {
   if (audio.value) {
     currentTime.value = audio.value.currentTime;
     duration.value = audio.value.duration || 0;
-    
+
     if (duration.value > 0) {
       progress.value = (currentTime.value / duration.value) * 100;
     }
@@ -385,6 +385,7 @@ const nextSong = () => {
     const song = playlist.value[newIndex];
     store.setCurrentIndex(newIndex);
     store.setCurrentSong(song);
+
     audioUrl.value = `${config.api}/music/audio/?filename=${song.path}`;
     // 自动播放
     setTimeout(() => {
@@ -430,7 +431,7 @@ const removeFromQueue = (index: number) => {
     const newPlaylist = [...playlist.value];
     newPlaylist.splice(index, 1);
     store.setPlaylist(newPlaylist);
-    
+
     // 如果删除的是当前播放的歌曲，自动播放下一首
     if (index === currentIndex.value) {
       if (index >= newPlaylist.length) {
@@ -467,6 +468,20 @@ const removeFromQueue = (index: number) => {
   background-color: #fff;
   padding: 0 20px;
   border-bottom: 1px solid #e4e7ed;
+  display: flex;
+  align-items: center;
+}
+
+.header-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.el-menu-demo {
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 
 .el-footer {
@@ -701,5 +716,41 @@ const removeFromQueue = (index: number) => {
 .empty-queue {
   text-align: center;
   padding: 40px 0;
+}
+
+/* 用户信息区域样式 */
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  padding: 0 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.user-info:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.user-avatar {
+  border: 2px solid #e4e7ed;
+  transition: all 0.3s ease;
+}
+
+.user-info:hover .user-avatar {
+  border-color: #409eff;
+  transform: scale(1.05);
+}
+
+.username {
+  margin-left: 10px;
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
 }
 </style>

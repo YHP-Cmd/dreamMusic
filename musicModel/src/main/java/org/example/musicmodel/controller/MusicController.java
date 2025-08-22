@@ -1,8 +1,12 @@
 package org.example.musicmodel.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.example.common.pojo.Listen;
+import org.example.common.pojo.User;
+import org.example.common.util.JWTUtil;
 import org.example.musicmodel.mapper.MusicMapper;
 import org.example.common.pojo.Song;
+import org.example.musicmodel.server.Impl.ListenServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -10,9 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +28,9 @@ public class MusicController {
     @Autowired
     private MusicMapper musicMapper;
 
+    @Autowired
+    private ListenServiceImpl listenServiceImpl;
+
     private static final String AUDIO_DIR = "D:/下载/music";
 
     private static final String IMG_DIR = "D:/下载/image";
@@ -35,7 +40,9 @@ public class MusicController {
         return musicMapper.selectList(null);
     }
     @GetMapping("/audio")
-    public ResponseEntity<Resource> getAudio(@RequestParam String filename) {
+    public ResponseEntity<Resource> getAudio(@RequestParam String filename,
+                                             @RequestHeader("Authorization") String authorizationHeader,
+                                             @RequestParam int song_id) {
         // 安全检查：文件名不能包含非法字符
         if (filename.contains("..")) {
             return ResponseEntity.badRequest().body(null);
@@ -58,6 +65,13 @@ public class MusicController {
             if (contentType == null) {
                 contentType = "audio/mpeg";  // 默认 MIME 类型
             }
+
+            User user= JWTUtil.getUser(authorizationHeader);
+            Listen listen = new Listen();
+            listen.setSongId(user.getId());
+            listen.setSongId(song_id);
+            listen.setCreateTime(new Date());
+            listenServiceImpl.save(listen);
             return ResponseEntity.ok()
                     .contentType(MediaType.valueOf(contentType))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")

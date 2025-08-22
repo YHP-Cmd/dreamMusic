@@ -53,7 +53,9 @@ public class UserController {
         if (user.getStatus().equals("已冻结")){
             return Result.error(401,"账号已被冻结,请联系管理员");
         }
-        String token = JWTUtil.sign(user.getUsername());
+        body.setPassword(null);
+        body.setId(user.getId());
+        String token = JWTUtil.sign(body);
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);
         return Result.success("登录成功", data);
@@ -204,17 +206,13 @@ public class UserController {
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
-
             // 保存文件
             File destFile = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
             file.transferTo(destFile);
-
             // 返回成功响应
             response.put("code", 200);
             response.put("message", "上传成功");
             response.put("data", newFilename);
-
-
         } catch (IOException e) {
             e.printStackTrace();
             response.put("code", 500);
@@ -227,21 +225,11 @@ public class UserController {
     @GetMapping("/getUser")
     public User getUser(@RequestHeader("Authorization") String authorizationHeader){
         System.out.println("Authorization Header: " + authorizationHeader);
-        // 处理Bearer前缀
-        String token = authorizationHeader;
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            token = authorizationHeader.substring(7); // 移除"Bearer "前缀
-        }
-        System.out.println("Extracted Token: " + token);
-        boolean auth = JWTUtil.verify(token);
-        String username="";
-        if(auth) {
-             username = JWTUtil.getPayload(token);
-        }
+        User user=JWTUtil.getUser(authorizationHeader);
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("username",username);
-        User user=userService.getOne(queryWrapper);
-        user.setPassword(null);
-        return user;
+        queryWrapper.eq("username",user.getUsername());
+        User temp=userService.getOne(queryWrapper);
+        temp.setPassword(null);
+        return temp;
     }
 }
