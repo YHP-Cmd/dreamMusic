@@ -4,11 +4,11 @@ import {createRouter, createWebHashHistory} from 'vue-router'
 const routes=[
     {
         path:'/',
-        component:()=>import('./login/login.vue')
+        component:()=>import('./auth/login.vue')
     },
     {
-        path: '/regis',
-        component:()=>import('./login/regis.vue')
+      path: '/regis',
+      component:()=>import('./auth/register.vue')
     },
     {
         path: '/temp',
@@ -22,6 +22,10 @@ const routes=[
         path: '/home',
         component:()=>import('./layouts/home.vue'),
         children:[
+            {
+              path: '/comment',
+              component:()=>import('./components/comment.vue')
+            },
             {
                 path:'/recommend',
                 component:()=>import('./components/recommend.vue')

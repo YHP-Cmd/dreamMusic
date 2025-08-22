@@ -27,6 +27,7 @@ onMounted(() => {
 
 // 添加到播放列表的函数
 const addSong = (song) => {
+
   // 将歌曲添加到播放队列的最后面
   const currentPlaylist = [...store.playlist];
   // 检查歌曲是否已经在队列中
@@ -97,7 +98,7 @@ const selectSong = (song) => {
       <!-- 操作列 -->
       <el-table-column label="操作" width="120" fixed="right">
         <template #default="{ row }">
-          <el-button @click="addSong(row)" type="primary" size="small">
+          <el-button @click.stop="addSong(row)" type="primary" size="small">
             <el-icon><VideoPlay /></el-icon>
             添加
           </el-button>

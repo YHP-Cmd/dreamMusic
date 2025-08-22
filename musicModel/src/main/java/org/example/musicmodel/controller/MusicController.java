@@ -10,7 +10,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,10 +40,8 @@ public class MusicController {
         if (filename.contains("..")) {
             return ResponseEntity.badRequest().body(null);
         }
-
         // 根据传入的文件名构造路径
         Path filePath = Paths.get(AUDIO_DIR, filename).normalize();
-
         // 确保文件路径位于预期的目录中
         if (!filePath.startsWith(AUDIO_DIR)) {
             return ResponseEntity.badRequest().body(null); // 防止路径遍历攻击
@@ -104,6 +104,10 @@ public class MusicController {
     public List<Song> selectByAlbumId(@RequestParam Integer albumId){
         return musicMapper.getByAlbumId(albumId);
     }
+    @GetMapping("/selectById")
+    public Song selectById(@RequestParam Integer id){
+        return musicMapper.getById(id);
+    }
 
     @GetMapping("/test")
     public void test(){
@@ -117,5 +121,6 @@ public class MusicController {
             }
         }
     }
+
 }
 

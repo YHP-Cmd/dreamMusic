@@ -32,4 +32,12 @@ public interface MusicMapper extends BaseMapper<Song> {
             "LEFT JOIN album a ON s.album_id = a.album_id " +
             "where s.album_id = #{albumId}")
     List<Song> getByAlbumId(Integer albumId);
+    @Select("SELECT s.song_id, s.name,s.type_id,t.name as type,s.path,s.image,s.singer_id, si.name as singerName , " +
+            "a.album_name as albumName " +
+            "FROM song s " +
+            "LEFT JOIN singer si ON s.singer_id = si.singer_id " +
+            "LEFT JOIN song_type t ON s.type_id = t.type_id " +
+            "LEFT JOIN album a ON s.album_id = a.album_id " +
+            "where s.song_id = #{id}")
+    Song getById(Integer id);
 }

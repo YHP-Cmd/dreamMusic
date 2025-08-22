@@ -22,6 +22,10 @@
           <el-menu-item index="select">
             <el-icon><Search /></el-icon>
           </el-menu-item>
+          <div style="display: flex; align-items: center; margin-left: auto;">
+            <el-avatar src="user-avatar-url.jpg" size="large"></el-avatar>
+            <span style="margin-left: 10px; font-size: 16px;">用户昵称</span>
+          </div>
         </el-menu>
       </el-header>
 
@@ -46,7 +50,7 @@
 <!--             加入收藏-->
              <el-button><el-icon><Star/></el-icon></el-button>
 <!--             评论-->
-             <el-button><el-icon><ChatDotRound /></el-icon></el-button>
+             <el-button @click="comment(store.currentSong.songId)"><el-icon><ChatDotRound /></el-icon></el-button>
            </div>
            
            <!-- 中间：播放控制和进度条 -->
@@ -125,7 +129,7 @@
             <img :src="imgUrl(song.image)" class="song-thumbnail" />
             <div class="song-details">
               <div class="song-name">{{ song.name }}</div>
-              <div class="song-intro">{{ song.introduction || '暂无介绍' }}</div>
+              <div class="song-intro">{{ song.singerName || '未知歌手' }}</div>
             </div>
             <div class="song-actions">
               <el-button 
@@ -168,10 +172,41 @@
 import { useRouter } from 'vue-router'
 import { Search, ArrowLeft, ArrowRight, VideoPlay, VideoPause, Microphone, List, Delete } from '@element-plus/icons-vue'
 import {onMounted, ref, watch, computed, nextTick} from "vue";
-import axios from "axios";
 import { store } from '../store.js';
-import config from '../config'
+import { useUserStore } from "../stores/user.js"; // 修正拼写
+import axios from "axios";
+import config from '../config.js'
 
+const userStore = useUserStore(); // 修正拼写
+const user = ref();
+
+// 获取数据
+const getData = () => {
+  const token = userStore.token; // 确保获取 token
+  console.log("Token:", token);
+  axios.get(`${config.api}/users/getUser`, {
+    headers: {
+      'Authorization': token, // 确保 Authorization 前面是 'Bearer '
+    }
+  }).then(response => {
+    if (response.data) { // 确保数据是数组
+      console.log("Response Data:", response.data);
+      user.value = response.data; // 将数据绑定到 users
+    } else {
+      console.error("Unexpected data format:", response.data);
+    }
+  }).catch(error => {
+    console.error("Error fetching data:", error);
+  });
+}
+
+onMounted(() => {
+  getData(); // 组件加载时调用
+});
+
+const comment=(songId:number)=>{
+  router.push({path:'/comment',query:{songId:songId}})
+}
 const imgUrl=(filename)=>{
   return `${config.api}/music/`+filename
 }
