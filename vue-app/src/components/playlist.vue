@@ -1,6 +1,5 @@
 <template>
   <div class="playlist-container">
-    <h2 class="title">推荐歌单</h2>
     <div class="playlist-list">
       <div
           v-for="(playlist, index) in playlists"
@@ -18,34 +17,33 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
+import { onMounted, ref } from 'vue'
 import config from '../config.js'
 import axios from "axios";
-import {useRouter} from "vue-router";
-const router=useRouter()
-const imgUrl=(filename)=>{
-  return `${config.api}/music/`+filename
+import { useRouter } from "vue-router";
+const router = useRouter()
+const imgUrl = (filename) => {
+  return `${config.api}/music/` + filename
 }
 const playlists = ref([])
 
-const getData=()=>{
-  axios.get(`${config.api}/music/getAllPlaylist`).then(response=>{
-    if (response.data){
-      playlists.value=response.data
+const getData = () => {
+  axios.get(`${config.api}/music/getAllPlaylist`).then(response => {
+    if (response.data) {
+      playlists.value = response.data
     }
   })
 }
-onMounted(()=>{
+onMounted(() => {
   getData()
 })
 
 // 跳转到歌单详情页面的函数
 const goToPlaylist = (id) => {
   console.log(`跳转到歌单ID为${id}的详情页`)
-  // 可以在此处加入路由跳转功能，例如
   router.push({
-    path:'/playlistInfo',
-    query:{playlistId:id}
+    path: '/playlistInfo',
+    query: { playlistId: id }
   })
 }
 </script>
@@ -77,9 +75,12 @@ const goToPlaylist = (id) => {
   transform: scale(1.05);
 }
 
+/* 修改这里 */
 .cover {
   width: 100%;
+  height: 300px; /* 可以根据需要调整高度 */
   border-radius: 8px;
+  object-fit: cover; /* 使图像填充容器并保持比例 */
 }
 
 .details {

@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,6 +30,8 @@ public class Song {
     private int temp;
     @TableField(exist = false)
     private String statNum;
+    @TableField(exist = false)
+    private Date createTime;
 
     @Override
     public String toString() {

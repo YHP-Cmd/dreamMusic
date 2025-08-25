@@ -29,7 +29,7 @@
               size="large"
               class="user-avatar"
           ></el-avatar>
-          <span class="username">{{ user.username || '用户昵称' }}</span>
+          <span class="username">{{ user.nickname || '用户昵称' }}</span>
         </div>
       </el-header>
 
@@ -232,7 +232,8 @@ const getData = () => {
     if (response.data) {
       console.log("Response Data:", response.data);
       user.value = response.data; // 将数据绑定到 users
-      console.log(user.value)
+      userStore.setUserId(user.value.id)
+      console.log('userId;;;;;'+userStore.uid)
     } else {
       console.error("Unexpected data format:", response.data);
     }

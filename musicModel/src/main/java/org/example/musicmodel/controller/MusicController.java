@@ -3,6 +3,7 @@ package org.example.musicmodel.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.example.common.pojo.*;
 import org.example.musicmodel.mapper.MusicMapper;
+import org.example.musicmodel.server.Impl.CommentServiceImpl;
 import org.example.musicmodel.server.Impl.ListenServiceImpl;
 import org.example.musicmodel.server.Impl.MyfaovritesServiceImpl;
 import org.example.musicmodel.server.Impl.PlaylistServiceImpl;
@@ -24,6 +25,9 @@ import java.util.*;
 @CrossOrigin
 
 public class MusicController {
+
+    @Autowired
+    private CommentServiceImpl commentService;
 
     @Autowired
     private MyfaovritesServiceImpl myfaovritesService;
@@ -182,6 +186,27 @@ public class MusicController {
         queryWrapper.eq("user_id",userId);
         return myfaovritesService.count(queryWrapper) > 0;
     }
+    @GetMapping("/selectCommentBySongId")
+    public List<Comment> selectCommentBySongId(@RequestParam Integer songId) {
+        return commentService.selectBySongId(songId);
+    }
+    @PutMapping("/addComment")
+    public boolean addComment(@RequestBody Comment comment){
+        System.out.println(comment);
+        return commentService.save(comment);
+    }
+
+    @GetMapping("/selectByLike")
+    public List<Song> selectByLike(@RequestParam String name){
+        return musicMapper.getByLike(name);
+    }
+
+    @GetMapping("/selectByListen")
+    public List<Song> selectByListen(@RequestParam int userId){
+        return musicMapper.getByListen(userId);
+    }
+
+
 
 }
 
