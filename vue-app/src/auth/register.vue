@@ -43,7 +43,6 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import request from '../utils/request.js'
 import { useRouter } from 'vue-router'
 import axios from "axios";
 import config from "../config.js";

@@ -39,6 +39,10 @@ const routes=[
                 component:()=>import('./components/playlist.vue')
             },
             {
+                path: '/playlistInfo',
+                component:()=>import('./info/playlistInfo.vue')
+            },
+            {
                 path:'/ranking',
                 component:()=>import('./components/ranking.vue'),
                 children: [

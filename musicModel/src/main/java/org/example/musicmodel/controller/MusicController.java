@@ -1,12 +1,11 @@
 package org.example.musicmodel.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import org.example.common.pojo.Listen;
-import org.example.common.pojo.User;
-import org.example.common.util.JWTUtil;
+import org.example.common.pojo.*;
 import org.example.musicmodel.mapper.MusicMapper;
-import org.example.common.pojo.Song;
 import org.example.musicmodel.server.Impl.ListenServiceImpl;
+import org.example.musicmodel.server.Impl.MyfaovritesServiceImpl;
+import org.example.musicmodel.server.Impl.PlaylistServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -23,7 +22,14 @@ import java.util.*;
 
 @RestController
 @CrossOrigin
+
 public class MusicController {
+
+    @Autowired
+    private MyfaovritesServiceImpl myfaovritesService;
+
+    @Autowired
+    private PlaylistServiceImpl playlistService;
 
     @Autowired
     private MusicMapper musicMapper;
@@ -127,7 +133,10 @@ public class MusicController {
     public List<Song> selectByNum(){
         return musicMapper.getByNum();
     }
-
+    @GetMapping("/selectByStat")
+    public List<Song> selectByStat(){
+        return musicMapper.getByStat();
+    }
     @GetMapping("/test")
     public void test(){
         List<Song> songs = musicMapper.selectList(null);
@@ -139,6 +148,39 @@ public class MusicController {
                 musicMapper.update(song,queryWrapper);
             }
         }
+    }
+
+    @GetMapping("/getAllPlaylist")
+    public List<Playlist> getAllPlaylist(){
+        return playlistService.list(null);
+    }
+    @GetMapping("/getPlaylistById")
+    public Playlist getPlaylistById(@RequestParam Integer id){
+        QueryWrapper<Playlist> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id",id);
+        return playlistService.getOne(queryWrapper);
+    }
+    @GetMapping("/getByPlaylistId")
+    public List<Song> getByPlaylistId(@RequestParam Integer playlistId){
+        return musicMapper.getByPlaylistId(playlistId);
+    }
+    @PutMapping("/addStat")
+    public boolean addStat(@RequestBody Myfaovrites myfaovrites){
+        return myfaovritesService.save(myfaovrites);
+    }
+    @PutMapping("/deleteStat")
+    public boolean deleteStat(@RequestBody Myfaovrites myfaovrites){
+        QueryWrapper<Myfaovrites> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("song_id",myfaovrites.getSongId());
+        queryWrapper.eq("user_id",myfaovrites.getUserId());
+        return myfaovritesService.remove(queryWrapper);
+    }
+    @GetMapping("/isStat")
+    public boolean isStat(@RequestParam int songId,@RequestParam int userId){
+        QueryWrapper<Myfaovrites> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("song_id",songId);
+        queryWrapper.eq("user_id",userId);
+        return myfaovritesService.count(queryWrapper) > 0;
     }
 
 }

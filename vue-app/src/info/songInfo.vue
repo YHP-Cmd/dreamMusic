@@ -79,9 +79,7 @@ const selectSong = (song) => {
 </script>
 
 <template>
-
   <div class="recommend-container">
-
     <el-table :data="musics"
               :show-header="false"
               highlight-current-row

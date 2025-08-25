@@ -50,11 +50,12 @@
                <div style="font-size: 14px; color: #fff; opacity: 0.8;">{{ store.currentSong.singerName || '暂无介绍' }}</div>
              </div>
            </div>
-           <div>
+           <div v-if="store.currentSong">
 <!--             加入收藏-->
-             <el-button><el-icon><Star/></el-icon></el-button>
+             <el-button @click="cancelStat(store.currentSong.songId)" v-if="store.isStat" class="icon-button">❤️️</el-button>
+             <el-button @click="addStat(store.currentSong.songId)" v-if="!store.isStat" class="icon-button">❤</el-button>
 <!--             评论-->
-             <el-button @click="comment(store.currentSong.songId)"><el-icon><ChatDotRound /></el-icon></el-button>
+             <el-button @click="comment(store.currentSong.songId)" class="icon-button"><el-icon><ChatDotRound /></el-icon></el-button>
            </div>
 
            <!-- 中间：播放控制和进度条 -->
@@ -85,6 +86,7 @@
                />
              </div>
            </div>
+
 
            <!-- 右侧：音量控制和播放队列 -->
            <div class="right-section">
@@ -178,10 +180,38 @@ import { store } from '../store.js';
 import { useUserStore } from "../stores/user.js"; // 修正拼写
 import axios from "axios";
 import config from '../config.js'
-
-const userStore = useUserStore(); // 修正拼写
+const userStore = useUserStore();
 const user = ref({});
 
+const getStat=(userId,songId)=>{
+  axios.get(`${config.api}/music/isStat`,{
+  params:{
+    userId:userId,
+    songId:songId
+  }
+  }).then(response=>{
+      store.isStat=response.data
+  })
+}
+const addStat=(songId)=>{//加入收藏
+  const myfaovrites={
+    userId:user.value.id,
+    songId:songId
+  }
+  axios.put(`${config.api}/music/addStat`,myfaovrites).then(response=>{
+    store.isStat=response.data
+  })
+}
+const cancelStat=(songId)=>{//取消收藏
+  const myfaovrites={
+    userId:user.value.id,
+    songId:songId
+  }
+  axios.put(`${config.api}/music/deleteStat`,myfaovrites).then(response=>{
+    store.isStat=!response.data
+  })
+
+}
 // 获取数据
 const getData = () => {
   const token = userStore.token; // 确保获取 token
@@ -189,7 +219,6 @@ const getData = () => {
   console.log("Token from store:", token);
   console.log("Token from localStorage:", localStorageToken);
   console.log("Token length:", token ? token.length : 0);
-
   if (!token) {
     console.error("Token is empty or null!");
     return;
@@ -211,10 +240,6 @@ const getData = () => {
     console.error("Error fetching data:", error);
   });
 }
-
-onMounted(() => {
-  getData(); // 组件加载时调用
-});
 
 const comment=(songId:number)=>{
   router.push({path:'/comment',query:{songId:songId}})
@@ -239,7 +264,9 @@ const showQueue = ref(false);
 const playlist = computed(() => store.playlist);
 const currentIndex = computed(() => store.currentIndex);
 onMounted(()=>{
+
   store.currentSong=null
+  router.push('/recommend')
   getData() // 取消注释，确保调用getData
   // 初始化音量
   if (audio.value) {
@@ -269,6 +296,7 @@ watch(() => store.currentSong, (newSong) => {
   if (newSong) {
     // 更新音频源
     audioUrl.value = `${config.api}/music/audio/?user_id=${user.value.id}&filename=${newSong.path}&song_id=${newSong.songId}`;
+    getStat(user.value.id,newSong.songId)
     // 自动播放新歌曲
     setTimeout(() => {
       if (audio.value) {
@@ -322,7 +350,7 @@ const onSongEnd = () => {
   console.log("歌曲播放完毕！");
 };
 const router = useRouter()
-const activeIndex = ref('1')
+const activeIndex = ref('recommend')
 
 const handleSelect = (key: string) => {
   router.push("/" + key)
@@ -357,6 +385,7 @@ const previousSong = () => {
     store.setCurrentIndex(newIndex);
     store.setCurrentSong(song);
     audioUrl.value = `${config.api}/music/audio/?user_id=${user.value.id}&filename=${song.path}&song_id=${song.songId}`;
+    getStat(user.value.id,song.songId)
     // 自动播放
     setTimeout(() => {
       if (audio.value) {
@@ -384,6 +413,7 @@ const nextSong = () => {
     store.setCurrentSong(song);
 
     audioUrl.value = `${config.api}/music/audio/?user_id=${user.value.id}&filename=${song.path}&song_id=${song.songId}`;
+    getStat(user.value.id,song.songId)
     // 自动播放
     setTimeout(() => {
       if (audio.value) {
@@ -409,6 +439,7 @@ const playSong = (index: number) => {
     store.setCurrentIndex(index);
     store.setCurrentSong(song);
     audioUrl.value = `${config.api}/music/audio/?user_id=${user.value.id}&filename=${song.path}&song_id=${song.songId}`;
+    getStat(user.value.id,song.songId)
     // 自动播放
     setTimeout(() => {
       if (audio.value) {
@@ -749,5 +780,12 @@ const removeFromQueue = (index: number) => {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 120px;
+}
+.icon-button {
+  border: none;           /* 移除边框 */
+  background: transparent; /* 移除背景 */
+  padding: 0;            /* 移除内边距 */
+  cursor: pointer;       /* 鼠标悬停时变为手型 */
+  font-size: 24px;       /* 定义图标大小 */
 }
 </style>
