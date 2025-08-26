@@ -35,6 +35,14 @@ const routes=[
                 component:()=>import('./components/my.vue')
             },
             {
+                path:'/record',
+                component:()=>import('./info/record.vue')
+            },
+            {
+                path:'/myfaovrites',
+                component:()=>import('./info/myfaovrites.vue')
+            },
+            {
                 path:'/playlist',
                 component:()=>import('./components/playlist.vue')
             },

@@ -3,10 +3,7 @@ package org.example.musicmodel.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.example.common.pojo.*;
 import org.example.musicmodel.mapper.MusicMapper;
-import org.example.musicmodel.server.Impl.CommentServiceImpl;
-import org.example.musicmodel.server.Impl.ListenServiceImpl;
-import org.example.musicmodel.server.Impl.MyfaovritesServiceImpl;
-import org.example.musicmodel.server.Impl.PlaylistServiceImpl;
+import org.example.musicmodel.server.Impl.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -25,6 +22,10 @@ import java.util.*;
 @CrossOrigin
 
 public class MusicController {
+    @Autowired
+    private PlaylistStatServiceImpl playlistStatService;
+    @Autowired
+    private MusicMapper musicMapper;
 
     @Autowired
     private CommentServiceImpl commentService;
@@ -34,9 +35,6 @@ public class MusicController {
 
     @Autowired
     private PlaylistServiceImpl playlistService;
-
-    @Autowired
-    private MusicMapper musicMapper;
 
     @Autowired
     private ListenServiceImpl listenServiceImpl;
@@ -134,12 +132,16 @@ public class MusicController {
         return musicMapper.getById(id);
     }
     @GetMapping("/selectByNum")
-    public List<Song> selectByNum(){
-        return musicMapper.getByNum();
+    public List<Song> selectByNum(@RequestParam int userId){
+        return musicMapper.getRankByNum(userId);
     }
     @GetMapping("/selectByStat")
-    public List<Song> selectByStat(){
-        return musicMapper.getByStat();
+    public List<Song> selectByStat(@RequestParam int userId){
+        return musicMapper.getRankByStat(userId);
+    }
+    @GetMapping("/getMyStat")
+    public List<Song> getMyStat(@RequestParam Integer userId){
+        return musicMapper.getByStat(userId);
     }
     @GetMapping("/test")
     public void test(){
@@ -153,7 +155,6 @@ public class MusicController {
             }
         }
     }
-
     @GetMapping("/getAllPlaylist")
     public List<Playlist> getAllPlaylist(){
         return playlistService.list(null);
@@ -172,6 +173,10 @@ public class MusicController {
     public boolean addStat(@RequestBody Myfaovrites myfaovrites){
         return myfaovritesService.save(myfaovrites);
     }
+    @PutMapping("/addListStat")
+    public boolean addListStat(@RequestBody PlaylistStat myfaovrites){
+        return playlistStatService.save(myfaovrites);
+    }
     @PutMapping("/deleteStat")
     public boolean deleteStat(@RequestBody Myfaovrites myfaovrites){
         QueryWrapper<Myfaovrites> queryWrapper = new QueryWrapper<>();
@@ -179,12 +184,26 @@ public class MusicController {
         queryWrapper.eq("user_id",myfaovrites.getUserId());
         return myfaovritesService.remove(queryWrapper);
     }
+    @PutMapping("/deleteListStat")
+    public boolean deleteListStat(@RequestBody PlaylistStat myfaovrites){
+        QueryWrapper<PlaylistStat> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("playlist_id",myfaovrites.getPlaylistId());
+        queryWrapper.eq("user_id",myfaovrites.getUserId());
+        return playlistStatService.remove(queryWrapper);
+    }
     @GetMapping("/isStat")
     public boolean isStat(@RequestParam int songId,@RequestParam int userId){
         QueryWrapper<Myfaovrites> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("song_id",songId);
         queryWrapper.eq("user_id",userId);
         return myfaovritesService.count(queryWrapper) > 0;
+    }
+    @GetMapping("/listIsStat")
+    public boolean listIsStat(@RequestParam int listId,@RequestParam int userId){
+        QueryWrapper<PlaylistStat> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("playlist_id",listId);
+        queryWrapper.eq("user_id",userId);
+        return playlistStatService.count(queryWrapper) > 0;
     }
     @GetMapping("/selectCommentBySongId")
     public List<Comment> selectCommentBySongId(@RequestParam Integer songId) {
@@ -195,12 +214,10 @@ public class MusicController {
         System.out.println(comment);
         return commentService.save(comment);
     }
-
     @GetMapping("/selectByLike")
     public List<Song> selectByLike(@RequestParam String name){
         return musicMapper.getByLike(name);
     }
-
     @GetMapping("/selectByListen")
     public List<Song> selectByListen(@RequestParam int userId){
         return musicMapper.getByListen(userId);

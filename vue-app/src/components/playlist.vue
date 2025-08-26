@@ -53,11 +53,6 @@ const goToPlaylist = (id) => {
   padding: 20px;
 }
 
-.title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
 
 .playlist-list {
   display: flex;
@@ -92,8 +87,4 @@ const goToPlaylist = (id) => {
   font-weight: bold;
 }
 
-.description {
-  font-size: 14px;
-  color: #666;
-}
 </style>

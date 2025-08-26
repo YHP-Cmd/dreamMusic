@@ -5,6 +5,7 @@ export const store = reactive({
   isPlaying: false,
   playlist: [],
   isStat:false,
+  listStat:false,
   currentIndex: -1,
   // 设置当前播放的歌曲
   setCurrentSong(song) {
