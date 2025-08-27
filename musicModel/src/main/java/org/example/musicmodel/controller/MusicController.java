@@ -1,8 +1,11 @@
 package org.example.musicmodel.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.example.common.pojo.*;
 import org.example.musicmodel.mapper.MusicMapper;
+import org.example.musicmodel.mapper.SongTypeMapper;
 import org.example.musicmodel.server.Impl.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -10,6 +13,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -22,6 +26,11 @@ import java.util.*;
 @CrossOrigin
 
 public class MusicController {
+    @Autowired
+    SongTypeServiceImpl  songTypeService;
+
+    @Autowired
+    private MusicServerImpl musicServer;
     @Autowired
     private PlaylistStatServiceImpl playlistStatService;
     @Autowired
@@ -42,6 +51,23 @@ public class MusicController {
     private static final String AUDIO_DIR = "D:/下载/music";
 
     private static final String IMG_DIR = "D:/下载/image";
+    @Autowired
+    private SongTypeMapper songTypeMapper;
+
+    @GetMapping("/page")
+    public Page<Song> page(
+            @RequestParam(defaultValue = "1") long pageNum,
+            @RequestParam(defaultValue = "10") long pageSize,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Integer typeId,
+            @RequestParam(required = false) Integer singerId,
+            @RequestParam(required = false) String status
+    ) {
+        Page<Song> page = new Page<>(pageNum, pageSize);
+        List<Song> records = musicMapper.selectSongPage(page, name, typeId, singerId, status);
+        page.setRecords(records);
+        return page;
+    }
 
     @GetMapping("/getAll")
     public List<Song> getAll(){
@@ -99,7 +125,7 @@ public class MusicController {
         // 返回前10个不重复的歌曲
         return songs.subList(0, Math.min(10, songs.size()));
     }
-    @GetMapping("/{filename}")
+    @GetMapping("/image/{filename}")
     public ResponseEntity<?> getImage(@PathVariable("filename") String filename) {
         try {
             // 文件的路径
@@ -207,7 +233,24 @@ public class MusicController {
     }
     @GetMapping("/selectCommentBySongId")
     public List<Comment> selectCommentBySongId(@RequestParam Integer songId) {
-        return commentService.selectBySongId(songId);
+        List<Comment> comments = commentService.selectBySongId(songId);
+        // 遍历每个评论，设置子评论
+        for (Comment comment : comments) {
+            setComment(comment);
+        }
+        // 返回处理过的评论列表
+        return comments;
+    }
+    public void setComment(Comment comment){
+        // 根据评论的 songId 获取子评论
+        List<Comment> comments = commentService.selectByParentId(comment.getCommentId()); // 这里改为根据 commentId 查找子评论
+        if (!comments.isEmpty()) {
+            comment.setChildComment(comments);
+        }
+    }
+    @GetMapping("/selectCommentByParentId")
+    public List<Comment> selectCommentByParentId(@RequestParam Integer parentId) {
+        return commentService.selectByParentId(parentId);
     }
     @PutMapping("/addComment")
     public boolean addComment(@RequestBody Comment comment){
@@ -223,7 +266,59 @@ public class MusicController {
         return musicMapper.getByListen(userId);
     }
 
-
-
+    @GetMapping("/songCount")
+    public int songCount(){
+        return musicServer.count(null);
+    }
+    @GetMapping("/listenCount")
+    public int listenCount(){
+        return listenServiceImpl.count(null);
+    }
+    @GetMapping("/songTypeCount")
+    public int songTypeCount(){
+        return songTypeService.count(null);
+    }
+    @GetMapping("/getHot")
+    public List<Song> getHot(){
+        return musicMapper.getHot();
+    }
+    @GetMapping("/countByType")
+    public List<TypeCountDTO> getCountByType(){
+        return musicMapper.getCountByType();
+    }
+    @GetMapping("/getAllType")
+    public List<SongType> getAllType(){
+        return songTypeService.list(null);
+    }
+    // 分页查询歌曲类型
+    @GetMapping("/pageType")
+    public IPage page(
+            @RequestParam(defaultValue = "1") long pageNum,
+            @RequestParam(defaultValue = "10") long pageSize,
+            @RequestParam(required = false) String name
+    ) {
+        Page<SongType> page = new Page<>(pageNum, pageSize);
+        QueryWrapper<SongType> queryWrapper = new QueryWrapper<>();
+        if (name != null) {
+            queryWrapper.like("name",name);
+        }
+        return songTypeService.page(page,queryWrapper);
+    }
+    @PutMapping("/addType")
+    public boolean addType(@RequestBody SongType songType){
+        return songTypeService.save(songType);
+    }
+    @PutMapping("/updateType")
+    public boolean updateType(@RequestBody SongType songType){
+        QueryWrapper<SongType> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("type_id",songType.getTypeId());
+        return songTypeService.update(songType,queryWrapper);
+    }
+    @DeleteMapping("/deleteType")
+    public boolean deleteType(@RequestParam Integer id){
+        QueryWrapper<SongType> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("type_id",id);
+        return songTypeService.remove(queryWrapper);
+    }
 }
 

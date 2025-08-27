@@ -3,6 +3,72 @@ import {createRouter, createWebHashHistory} from 'vue-router'
 //(2)配置组件访问的路径
 const routes=[
     {
+        path: '/layout',
+        component: () => import('./layouts/Layout.vue'),
+        children: [
+            {
+                path: '/home1',
+                name: 'home1',
+                component: () => import('./views/home/home.vue'),
+                meta: { breadcrumb: ['首页'] }
+            },
+            {
+                path: '/admin/user',
+                name: 'userMessage',
+                component: () => import('./views/admin/userMessage.vue'),
+                meta: { breadcrumb: ['管理中心', '用户管理'] }
+            },
+            {
+                path: '/admin/song',
+                name: 'songMessage',
+                component: () => import('./views/admin/songMessage.vue'),
+                meta: { breadcrumb: ['管理中心', '歌曲管理'] }
+            },
+            {
+                path: '/admin/singer',
+                name: 'singerMessage',
+                component: () => import('./views/admin/singerMessage.vue'),
+                meta: { breadcrumb: ['管理中心', '歌手管理'] }
+            },
+            {
+                path: '/settings/profile',
+                name: 'profileSettings',
+                component: () => import('./views/admin/profileSettings.vue'),
+                meta: { breadcrumb: ['设置中心', '个人设置'] }
+            },
+            {
+                path: '/settings/security',
+                name: 'securitySettings',
+                component: () => import('./views/admin/securitySettings.vue'),
+                meta: { breadcrumb: ['设置中心', '安全设置'] }
+            },
+            {
+                path: '/type/userType',
+                name: 'userTypeMessage',
+                component: () => import('./views/admin/userTypeMessage.vue'),
+                meta: { breadcrumb: ['设置中心', '用户类型管理'] }
+            },
+            {
+                path: '/type/songType',
+                name: 'songTypeMessage',
+                component: () => import('./views/admin/songTypeMessage.vue'),
+                meta: { breadcrumb: ['设置中心', '歌曲类型管理'] }
+            },
+            {
+                path: '/type/singerType',
+                name: 'singerTypeMessage',
+                component: () => import('./views/admin/singerTypeMessage.vue'),
+                meta: { breadcrumb: ['设置中心', '歌手类型管理'] }
+            },
+            {
+                path: '/permission',
+                name: 'permissionMessage',
+                component: () => import('./views/admin/permissionMessage.vue'),
+                meta: { breadcrumb: ['设置中心', '权限管理'] }
+            }
+        ]
+    },
+    {
         path:'/',
         component:()=>import('./auth/login.vue')
     },

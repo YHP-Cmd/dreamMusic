@@ -1,6 +1,9 @@
 package org.example.musicmodel.server;
 
 
-public interface MusicServer {
+import com.baomidou.mybatisplus.extension.service.IService;
+import org.example.common.pojo.Song;
+
+public interface MusicServer extends IService<Song> {
 
 }

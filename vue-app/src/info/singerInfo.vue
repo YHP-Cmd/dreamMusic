@@ -46,7 +46,7 @@ const handleSelect = (key) => {
   })
 }
 const imgUrl=(filename)=>{
-  return `${config.api}/music/`+filename
+  return `${config.api}/music/image/`+filename
 }
 const  getData=()=>{
   axios.get(`${config.api}/singer/getById`,{

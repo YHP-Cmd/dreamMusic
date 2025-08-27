@@ -28,7 +28,7 @@ const handleSelect = (key) => {
   router.push(`/${key}`)
 }
 const imgUrl=(filename)=>{
-  return `${config.api}/music/`+filename
+  return `${config.api}/music/image/`+filename
 }
 onMounted(()=>{
   router.push('/sumRank')

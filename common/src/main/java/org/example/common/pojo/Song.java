@@ -32,6 +32,7 @@ public class Song {
     private String statNum;
     @TableField(exist = false)
     private Date createTime;
+    private String status;
 
     @Override
     public String toString() {

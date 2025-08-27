@@ -22,8 +22,8 @@ import config from '../config.js'
 import axios from "axios";
 import { useRouter } from "vue-router";
 const router = useRouter()
-const imgUrl = (filename) => {
-  return `${config.api}/music/` + filename
+const imgUrl=(filename)=>{
+  return `${config.api}/music/image/`+filename
 }
 const playlists = ref([])
 

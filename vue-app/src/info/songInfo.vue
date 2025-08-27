@@ -11,7 +11,7 @@ const route = useRoute()
 const singerId=route.query.singerId
 
 const imgUrl=(filename)=>{
-  return `${config.api}/music/`+filename
+  return `${config.api}/music/image/`+filename
 }
 
 // Ref to store the fetched music data

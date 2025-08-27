@@ -7,7 +7,7 @@ import {useRouter} from "vue-router";
 const router = useRouter()
 
 const imgUrl=(filename)=>{
-  return `${config.api}/music/`+filename
+  return `${config.api}/music/image/`+filename
 }
 const singers=ref([])
 const getData=()=>{

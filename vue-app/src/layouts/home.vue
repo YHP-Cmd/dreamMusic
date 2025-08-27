@@ -246,7 +246,7 @@ const comment=(songId:number)=>{
   router.push({path:'/comment',query:{songId:songId}})
 }
 const imgUrl=(filename)=>{
-  return `${config.api}/music/`+filename
+  return `${config.api}/music/image/`+filename
 }
 
 // 创建 audio 元素的 ref 引用

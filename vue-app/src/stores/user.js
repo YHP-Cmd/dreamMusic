@@ -27,8 +27,8 @@ export const useUserStore = defineStore('user', () => {
     username.value = ''
     localStorage.removeItem('token')
     localStorage.removeItem('username')
-    localStorage.removeItem('userId') // 如果需要，也可以清除 userId
-    userId.value = ''; // 清空userId的反应式值
+    localStorage.removeItem('uid') // 如果需要，也可以清除 userId
+    uid.value = ''; // 清空userId的反应式值
   }
 
   // 检查是否已登录

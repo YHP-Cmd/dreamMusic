@@ -50,8 +50,8 @@ const router=useRouter()
 import config from '../config'
 
 const activeTab = ref('myPlaylists');
-const imgUrl = (filename) => {
-  return `${config.api}/music/` + filename
+const imgUrl=(filename)=>{
+  return `${config.api}/music/image/`+filename
 }
 
 const goToPlaybackHistory = () => {

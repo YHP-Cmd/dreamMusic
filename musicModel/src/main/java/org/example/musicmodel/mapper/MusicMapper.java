@@ -1,9 +1,12 @@
 package org.example.musicmodel.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.example.common.pojo.Song;
+import org.example.common.pojo.TypeCountDTO;
 
 import java.util.List;
 
@@ -61,6 +64,18 @@ public interface MusicMapper extends BaseMapper<Song> {
             "LEFT JOIN singer si ON s.singer_id = si.singer_id " +
             "LEFT JOIN song_type t ON s.type_id = t.type_id " +
             "LEFT JOIN album a ON s.album_id = a.album_id " +
+            "LEFT JOIN listen l ON s.song_id = l.song_id " +
+            "GROUP BY s.song_id, s.name, s.type_id, t.name, s.path, s.image, s.singer_id, si.name, a.album_name " +
+            "ORDER BY temp DESC " +
+            "LIMIT 10")
+    List<Song> getHot();
+    @Select("SELECT s.song_id, s.name, s.type_id, t.name AS type, s.path, s.image, s.singer_id, si.name AS singerName, " +
+            "a.album_name AS albumName, " +
+            "COUNT(l.id) AS temp " +
+            "FROM song s " +
+            "LEFT JOIN singer si ON s.singer_id = si.singer_id " +
+            "LEFT JOIN song_type t ON s.type_id = t.type_id " +
+            "LEFT JOIN album a ON s.album_id = a.album_id " +
             "LEFT JOIN myfaovrites l ON s.song_id = l.song_id " +
             "WHERE user_id = #{userId} " +
             "GROUP BY s.song_id, s.name, s.type_id, t.name, s.path, s.image, s.singer_id, si.name, a.album_name " +
@@ -105,5 +120,18 @@ public interface MusicMapper extends BaseMapper<Song> {
             "LEFT JOIN myfaovrites m ON m.song_id=s.song_id " +
             "where m.user_id = #{userId}")
     List<Song> getByStat(Integer userId);
+    // 按歌曲类型统计数量
+    @Select("select st.name as typeName, count(*) as count " +
+            "from song s " +
+            "left join song_type st on s.type_id = st.type_id " +
+            "group by s.type_id, st.name")
+    List<TypeCountDTO> getCountByType();
+    List<Song> selectSongPage(
+            Page<Song> page,
+            @Param("name") String name,
+            @Param("typeId") Integer typeId,
+            @Param("singerId") Integer singerId,
+            @Param("status") String status
+    );
 
 }

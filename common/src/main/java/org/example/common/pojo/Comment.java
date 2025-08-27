@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -17,6 +18,9 @@ public class Comment {
     private Date time;
     private int commenterId;
     private int songId;
+    private int parentId;
     @TableField(exist = false)
     private String commenterName;
+    @TableField(exist = false)
+    private List<Comment> childComment;
 }

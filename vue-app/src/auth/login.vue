@@ -40,7 +40,15 @@ const rules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
 }
-
+const type=ref('')
+const getUserType  = async (username)=>{
+  await axios.get(`${config.api}/users/getUserType?username=${username}`).then(response=>{
+    if (response.data){
+      console.log(response.data)
+      type.value= response.data
+    }
+  })
+}
 const onSubmit = () => {
   formRef.value.validate(async valid => {
     if (!valid) return
@@ -49,11 +57,17 @@ const onSubmit = () => {
        await axios.post(`${config.api}/users/login`, {
         username: form.username,
         password: form.password
-      }).then(response=>{
+      }).then(async response => {
          if (response.data.code === 200 && response.data.data && response.data.data.token) {
            userStore.setToken(response.data.data.token, form.username)
            ElMessage.success('登录成功')
-           router.push('/home')
+           await getUserType(form.username)
+           console.log('utp' + type.value)
+           if (type.value === '普通用户') {
+             await router.push('/home')
+           } else if (type.value === '管理员') {
+             await router.push('/layout')
+           }
          } else {
            ElMessage.error(response.data.message || '登录失败')
          }

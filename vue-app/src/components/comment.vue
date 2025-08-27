@@ -39,7 +39,7 @@ const userStore = useUserStore();
 const router=useRouter()
 const route=useRoute()
 const imgUrl=(filename)=>{
-  return `${config.api}/music/`+filename
+  return `${config.api}/music/image/`+filename
 }
 const songId=route.query.songId
 const song=ref();

@@ -5,9 +5,8 @@ import axios from "axios";
 import config from '../config'
 const router=useRouter()
 
-
 const imgUrl=(filename)=>{
-  return `${config.api}/music/`+filename
+  return `${config.api}/music/image/`+filename
 }
 const route = useRoute()
 const singerId=route.query.singerId

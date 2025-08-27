@@ -10,7 +10,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableDiscoveryClient
 @SpringBootApplication
 @MapperScan("org.example.usermodel.mapper")
-@ServletComponentScan("org.example.common")
 public class UserModelApplication {
     public static void main(String[] args) {
         SpringApplication.run(UserModelApplication.class, args);

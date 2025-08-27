@@ -14,7 +14,7 @@ public class Singer {
     private int regionId;
     @TableField(exist = false)
     private  String type;
-    private  String type_id;
+    private  int typeId;
     @TableField(exist = false)
     private String region;
     private String gender;

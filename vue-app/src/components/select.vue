@@ -53,7 +53,7 @@ import { ElMessage } from 'element-plus';
 import { VideoPlay } from '@element-plus/icons-vue';
 import config from '../config'
 const imgUrl=(filename)=>{
-  return `${config.api}/music/`+filename
+  return `${config.api}/music/image/`+filename
 }
 
 // 添加到播放列表的函数
