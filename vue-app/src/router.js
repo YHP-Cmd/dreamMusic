@@ -121,7 +121,7 @@ const routes=[
                 component:()=>import('./components/ranking.vue'),
                 children: [
                     {
-                        path: '/sumRank',
+                        path: '/sumRank1',
                         component:()=>import('./info/sumRank.vue')
                     },
                     {

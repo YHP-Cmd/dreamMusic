@@ -15,7 +15,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -191,9 +193,32 @@ public class MusicController {
         queryWrapper.eq("id",id);
         return playlistService.getOne(queryWrapper);
     }
+    public boolean songIsPlaylist(int songId,int playlistId){
+        return musicMapper.songIsPlaylist(playlistId, songId) != null;
+    }
+    @GetMapping("/getPlaylistByUserId")
+    public List<Playlist> getPlaylistByUserId(@RequestParam Integer userId){
+        QueryWrapper<Playlist> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("create_id",userId);
+        return playlistService.list(queryWrapper);
+    }
+    @GetMapping("/getPlaylistByStat")
+    public List<Playlist> getPlaylistByStat(@RequestParam Integer userId){
+        QueryWrapper<Playlist> queryWrapper = new QueryWrapper<>();
+        List<Integer> list=musicMapper.getAllStatList(userId);
+        queryWrapper.in("id",list);
+        return playlistService.list(queryWrapper);
+    }
     @GetMapping("/getByPlaylistId")
     public List<Song> getByPlaylistId(@RequestParam Integer playlistId){
         return musicMapper.getByPlaylistId(playlistId);
+    }
+    @PutMapping("/addToPlaylist")
+    public int addToPlaylist(@RequestParam Integer playlistId,@RequestParam Integer songId){
+        if (songIsPlaylist(songId,playlistId)) {
+            return 0;
+        }
+        return musicMapper.addToPlaylist(playlistId,songId);
     }
     @PutMapping("/addStat")
     public boolean addStat(@RequestBody Myfaovrites myfaovrites){
@@ -319,6 +344,149 @@ public class MusicController {
         QueryWrapper<SongType> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("type_id",id);
         return songTypeService.remove(queryWrapper);
+    }
+    
+    @PostMapping("/createPlaylist")
+    public boolean createPlaylist(@RequestBody Playlist playlist){
+        return playlistService.save(playlist);
+    }
+    
+    @PostMapping(value = "/upload/audio", consumes = "multipart/form-data")
+    public Map<String, Object> uploadAudio(@RequestParam("file") MultipartFile file){
+        Map<String, Object> response = new HashMap<>();
+        if (file.isEmpty()) {
+            response.put("code", 400);
+            response.put("message", "文件为空");
+            return response;
+        }
+        
+        // 检查文件格式
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
+            response.put("code", 400);
+            response.put("message", "文件名不能为空");
+            return response;
+        }
+        
+        String extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
+        if (!extension.equals(".mp3") && !extension.equals(".wav") && !extension.equals(".flac") && !extension.equals(".m4a")) {
+            response.put("code", 400);
+            response.put("message", "只支持 MP3、WAV、FLAC、M4A 格式的音频文件");
+            return response;
+        }
+        
+        // 检查文件大小 (50MB)
+        if (file.getSize() > 50 * 1024 * 1024) {
+            response.put("code", 400);
+            response.put("message", "文件大小不能超过 50MB");
+            return response;
+        }
+        
+        try {
+            // 生成UUID作为文件名
+            String newFilename = UUID.randomUUID() + extension;
+            // 确保目录存在
+            File uploadDir = new File(AUDIO_DIR);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            // 保存文件
+            File destFile = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
+            file.transferTo(destFile);
+            // 返回成功响应
+            response.put("code", 200);
+            response.put("message", "上传成功");
+            response.put("data", newFilename);
+        } catch (IOException e) {
+            e.printStackTrace();
+            response.put("code", 500);
+            response.put("message", "文件上传失败：" + e.getMessage());
+        }
+        return response;
+    }
+    
+    @PostMapping(value = "/upload/image", consumes = "multipart/form-data")
+    public Map<String, Object> uploadImage(@RequestParam("file") MultipartFile file){
+        Map<String, Object> response = new HashMap<>();
+        if (file.isEmpty()) {
+            response.put("code", 400);
+            response.put("message", "文件为空");
+            return response;
+        }
+        
+        // 检查文件格式
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
+            response.put("code", 400);
+            response.put("message", "文件名不能为空");
+            return response;
+        }
+        
+        String extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
+        if (!extension.equals(".jpg") && !extension.equals(".jpeg") && !extension.equals(".png")) {
+            response.put("code", 400);
+            response.put("message", "只支持 JPG 和 PNG 格式的图片");
+            return response;
+        }
+        
+        // 检查文件大小 (2MB)
+        if (file.getSize() > 2 * 1024 * 1024) {
+            response.put("code", 400);
+            response.put("message", "文件大小不能超过 2MB");
+            return response;
+        }
+        
+        try {
+            // 生成UUID作为文件名
+            String newFilename = UUID.randomUUID() + extension;
+            // 确保目录存在
+            File uploadDir = new File(IMG_DIR);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            // 保存文件
+            File destFile = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
+            file.transferTo(destFile);
+            // 返回成功响应
+            response.put("code", 200);
+            response.put("message", "上传成功");
+            response.put("data", newFilename);
+        } catch (IOException e) {
+            e.printStackTrace();
+            response.put("code", 500);
+            response.put("message", "文件上传失败：" + e.getMessage());
+        }
+        return response;
+    }
+    
+    @PostMapping("/addSong")
+    public boolean addSong(@RequestBody Song song){
+        return musicServer.save(song);
+    }
+    
+    @PutMapping("/updateSong")
+    public boolean updateSong(@RequestBody Song song){
+        return musicServer.updateById(song);
+    }
+    
+    @PutMapping("/freezeSong")
+    public boolean freezeSong(@RequestParam Integer songId){
+        Song song = musicServer.getById(songId);
+        if (song != null) {
+            song.setStatus("已冻结");
+            return musicServer.updateById(song);
+        }
+        return false;
+    }
+    
+    @PutMapping("/unfreezeSong")
+    public boolean unfreezeSong(@RequestParam Integer songId){
+        Song song = musicServer.getById(songId);
+        if (song != null) {
+            song.setStatus("正常");
+            return musicServer.updateById(song);
+        }
+        return false;
     }
 }
 

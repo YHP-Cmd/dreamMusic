@@ -2,13 +2,13 @@
   <el-container>
     <el-header class="header-content">
       <el-menu
-          :default-active="sumRank"
+          :default-active="'1'"
           class="el-menu-demo"
           mode="horizontal"
           @select="handleSelect"
       >
-        <el-menu-item index="sumRank">播放最多</el-menu-item>
-        <el-menu-item index="statRank">收藏最多</el-menu-item>
+        <el-menu-item index="1">播放最多</el-menu-item>
+        <el-menu-item index="2">收藏最多</el-menu-item>
       </el-menu>
     </el-header>
     <el-main>
@@ -22,16 +22,20 @@ import  {onMounted, ref} from 'vue';
 import {useRoute} from "vue-router";
 import config from "../config.js";
 import router from "../router.js";
+import sumRank from "../info/sumRank.vue";
 const route = useRoute()
 const handleSelect = (key) => {
-  console.log(key)
-  router.push(`/${key}`)
+  if (key==='2'){
+    router.push('/statRank')
+  }else {
+    router.push('/sumRank1')
+  }
 }
 const imgUrl=(filename)=>{
   return `${config.api}/music/image/`+filename
 }
 onMounted(()=>{
-  router.push('/sumRank')
+  router.push('/sumRank1')
 })
 </script>
 

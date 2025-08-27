@@ -2,15 +2,20 @@
 import { onMounted, ref } from "vue";
 import axios from "axios";
 import { store } from '../store.js';
+import {useUserStore} from '../stores/user'
 import { ElMessage } from 'element-plus';
 import { VideoPlay } from '@element-plus/icons-vue';
 import config from '../config'
+const userStore=useUserStore()
 const imgUrl=(filename)=>{
   return `${config.api}/music/image/`+filename
 }
 // Ref to store the fetched music data
 const musics = ref<any[]>([]);
-
+const dialogVisible = ref(false); // 弹窗的显示状态
+const selectedPlaylist = ref(null); // 存储选择的歌单
+const playlists = ref([]); // 存储歌单数据
+const songId=ref(null)
 // Function to fetch data from the server
 const getData = () => {
   axios.get(`${config.api}/music/recommend`).then((response) => {
@@ -19,13 +24,18 @@ const getData = () => {
     }
   });
 };
-
 // Fetch the data when the component is mounted
 onMounted(() => {
   getData();
+  getPlaylists()
 });
-
-// 添加到播放列表的函数
+const getPlaylists = () => {
+  axios.get(`${config.api}/music/getPlaylistByUserId?userId=${userStore.uid}`).then((response) => {
+    if (response.data) {
+      playlists.value = response.data;
+    }
+  });
+};
 const addSong = (song) => {
 
   // 将歌曲添加到播放队列的最后面
@@ -36,36 +46,47 @@ const addSong = (song) => {
     // 如果歌曲不在队列中，将其添加到队列最后面
     currentPlaylist.push(song);
   }
-  // 更新播放列表，不改变当前歌曲和播放状态
   store.setPlaylist(currentPlaylist);
-  // 可以添加一些用户反馈，比如消息提示
   ElMessage.success(`已添加歌曲到播放队列: ${song.name}`);
 };
 // 选择歌曲的函数
 const selectSong = (song) => {
   console.log('选择的歌曲:', song);
-
-  // 将歌曲添加到播放队列的最前面
   const currentPlaylist = [...store.playlist];
-
-  // 检查歌曲是否已经在队列中
   const existingIndex = currentPlaylist.findIndex(item => item.songId === song.songId);
-
   if (existingIndex !== -1) {
-    // 如果歌曲已存在，将其移到最前面
     currentPlaylist.splice(existingIndex, 1);
   }
-
-  // 将歌曲添加到队列最前面
   currentPlaylist.unshift(song);
-
-  // 更新播放列表
   store.setPlaylist(currentPlaylist);
-  // 设置当前歌曲为第一首（新添加的歌曲）
   store.setCurrentIndex(0);
   store.setCurrentSong(song);
-  // 可以添加一些用户反馈，比如消息提示
   ElMessage.success(`已添加歌曲到播放队列: ${song.name}`);
+};
+const addList = (row) => {
+
+  console.log('点击了按钮')
+  songId.value=row.songId
+  console.log('sid'+songId.value)
+  dialogVisible.value = true;
+};
+const saveToPlaylist = () => {
+  if (!selectedPlaylist.value) {
+    ElMessage.error("请选择一个歌单");
+    return;
+  }
+  // 假设我们有一个API接口将歌曲保存到歌单中
+  axios.put(`${config.api}/music/addToPlaylist`,{
+    params:{playlistId:selectedPlaylist.value,
+    songId:songId}
+  }).then((response) => {
+    if (response.data.success) {
+      ElMessage.success("已成功保存到歌单");
+      dialogVisible.value = false;
+    } else {
+      ElMessage.error("保存失败");
+    }
+  });
 };
 </script>
 
@@ -77,14 +98,12 @@ const selectSong = (song) => {
               highlight-current-row
               @current-change="selectSong"
               class="music-table" stripe>
-      <!-- Song image column -->
       <el-table-column label="封面" width="80">
         <template #default="{ row }">
           <img :src="imgUrl(row.image)" alt="封面" class="song-cover" />
         </template>
       </el-table-column>
 
-      <!-- Song name column -->
       <el-table-column label="歌曲名称" prop="name" min-width="200">
         <template #default="{ row }">
           <div class="song-info">
@@ -98,17 +117,35 @@ const selectSong = (song) => {
       <!-- 操作列 -->
       <el-table-column label="操作" width="120" fixed="right">
         <template #default="{ row }">
-          <el-button @click.stop="addSong(row)" type="primary" size="small">
+          <el-button @click.stop="addSong(row)" type="primary" size="small" >
             <el-icon><VideoPlay /></el-icon>
-            添加
+          </el-button>
+          <el-button @click.stop="addList(row)" type="primary" size="small" >
+            <el-icon><Plus/></el-icon>
           </el-button>
         </template>
       </el-table-column>
     </el-table>
+    <!-- 歌单选择弹窗 -->
+    <el-dialog v-model="dialogVisible" title="选择歌单">
+      <el-select v-model="selectedPlaylist" placeholder="选择一个歌单">
+        <el-option v-for="playlist in playlists" :key="playlist.id" :label="playlist.name" :value="playlist.id" />
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveToPlaylist">确定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
+
 <style scoped>
+/* 设置表格背景色 */
+.music-table {
+  background-color: #00fdd5;  /* 可以设置为任何颜色 */
+}
+
 .recommend-container {
   padding: 20px;
 }
@@ -170,5 +207,12 @@ const selectSong = (song) => {
 :deep(.el-button--primary:hover) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+.icon-button {
+  border: none;           /* 移除边框 */
+  background: transparent; /* 移除背景 */
+  padding: 0;            /* 移除内边距 */
+  cursor: pointer;       /* 鼠标悬停时变为手型 */
+  font-size: 24px;       /* 定义图标大小 */
 }
 </style>

@@ -240,10 +240,31 @@ public class UserController {
             response.put("message", "文件为空");
             return response;
         }
+        
+        // 检查文件格式
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
+            response.put("code", 400);
+            response.put("message", "文件名不能为空");
+            return response;
+        }
+        
+        String extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
+        if (!extension.equals(".jpg") && !extension.equals(".jpeg") && !extension.equals(".png")) {
+            response.put("code", 400);
+            response.put("message", "只支持 JPG 和 PNG 格式的图片");
+            return response;
+        }
+        
+        // 检查文件大小 (2MB)
+        if (file.getSize() > 2 * 1024 * 1024) {
+            response.put("code", 400);
+            response.put("message", "文件大小不能超过 2MB");
+            return response;
+        }
+        
         try {
             // 生成UUID作为文件名
-            String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String newFilename = UUID.randomUUID() + extension;
             // 确保目录存在
             File uploadDir = new File("D:/下载/image");

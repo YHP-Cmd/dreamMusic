@@ -2,6 +2,7 @@ package org.example.musicmodel.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -133,5 +134,13 @@ public interface MusicMapper extends BaseMapper<Song> {
             @Param("singerId") Integer singerId,
             @Param("status") String status
     );
+    @Insert("INSERT INTO playlist_song (playlist_id, song_id) VALUES (#{playlistId}, #{songId})")
+    int addToPlaylist( int playlistId, int songId);
+    @Select("select s.* from song s " +
+            "left join playlist_song p on s.song_id=p.song_id " +
+            "where p.playlist_id=#{playlistId} and s.song_id=#{songId}")
+    Song songIsPlaylist(int playlistId, int songId);
 
+    @Select("select playlist_id from playlist_stat where user_id=#{userId}")
+    List<Integer> getAllStatList(int userId);
 }
