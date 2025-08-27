@@ -376,9 +376,9 @@ public class MusicController {
         }
         
         // 检查文件大小 (50MB)
-        if (file.getSize() > 50 * 1024 * 1024) {
+        if (file.getSize() > 100 * 1024 * 1024) {
             response.put("code", 400);
-            response.put("message", "文件大小不能超过 50MB");
+            response.put("message", "文件大小不能超过 100MB");
             return response;
         }
         
