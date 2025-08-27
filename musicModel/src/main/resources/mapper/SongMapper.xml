@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.musicmodel.mapper.MusicMapper">
+
+    <!-- 连表分页查询歌曲（类型名、歌手名） -->
+    <select id="selectSongPage" resultType="org.example.common.pojo.Song">
+        SELECT s.*, st.name AS type, sg.name AS singerName, a.album_name AS albumName
+        FROM song s
+        LEFT JOIN song_type st ON s.type_id = st.type_id
+        LEFT JOIN singer sg ON s.singer_id = sg.singer_id
+        LEFT JOIN album a ON a.album_id = s.album_id
+        <where>
+            <if test="name != null and name != ''">
+                AND s.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="typeId != null">
+                AND s.type_id = #{typeId}
+            </if>
+            <if test="singerId != null">
+                AND s.singer_id = #{singerId}
+            </if>
+            <if test="status != null and status != ''">
+                AND s.status = #{status}
+            </if>
+        </where>
+        ORDER BY s.song_id DESC
+    </select>
+
+</mapper>
+
+
